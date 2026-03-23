@@ -1,0 +1,145 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   Global Design System — Hostel AI
+   Dark-first, glassmorphism UI
+============================================ */
+
+:root {
+  --bg-primary: #0f0f1a;
+  --bg-surface: #16162a;
+  --bg-card: rgba(30, 30, 53, 0.7);
+  --border-glass: rgba(99, 102, 241, 0.2);
+  --text-primary: #e2e8f0;
+  --text-muted: #94a3b8;
+}
+
+* {
+  box-sizing: border-box;
+  scrollbar-width: thin;
+  scrollbar-color: #4f46e5 #16162a;
+}
+
+*::-webkit-scrollbar { width: 6px; height: 6px; }
+*::-webkit-scrollbar-track { background: #16162a; }
+*::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 4px; }
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 20%, rgba(167, 139, 250, 0.06) 0%, transparent 60%);
+  background-attachment: fixed;
+}
+
+/* ============================================
+   Utility Classes
+============================================ */
+
+/* Glassmorphism card */
+.glass-card {
+  background: var(--bg-card);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--border-glass);
+  border-radius: 16px;
+}
+
+/* Glowing primary button */
+.btn-primary {
+  @apply px-5 py-2.5 rounded-xl font-semibold text-white transition-all duration-200;
+  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+}
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 30px rgba(99, 102, 241, 0.5);
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Ghost secondary button */
+.btn-ghost {
+  @apply px-5 py-2.5 rounded-xl font-medium transition-all duration-200;
+  border: 1px solid var(--border-glass);
+  color: var(--text-muted);
+}
+.btn-ghost:hover {
+  border-color: #6366f1;
+  color: #e2e8f0;
+  background: rgba(99, 102, 241, 0.1);
+}
+
+/* Input fields */
+.input-field {
+  @apply w-full px-4 py-2.5 rounded-xl text-sm transition-all duration-200 outline-none;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+}
+.input-field::placeholder { color: var(--text-muted); }
+.input-field:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Status badges */
+.badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold;
+}
+.badge-incomplete { @apply badge bg-zinc-800 text-zinc-400; }
+.badge-pending { @apply badge bg-amber-900/40 text-amber-400; }
+.badge-approved { @apply badge bg-emerald-900/40 text-emerald-400; }
+.badge-rejected { @apply badge bg-red-900/40 text-red-400; }
+
+/* Chat message bubbles */
+.bubble-user {
+  @apply px-4 py-3 rounded-2xl rounded-br-sm text-sm leading-relaxed max-w-[80%] ml-auto;
+  background: linear-gradient(135deg, #6366f1, #4f46e5);
+  color: #fff;
+}
+.bubble-ai {
+  @apply px-4 py-3 rounded-2xl rounded-bl-sm text-sm leading-relaxed max-w-[80%];
+  background: rgba(30, 30, 53, 0.9);
+  border: 1px solid var(--border-glass);
+  color: var(--text-primary);
+}
+
+/* Typing indicator dots */
+.typing-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: #6366f1;
+  display: inline-block;
+  animation: bounceDot 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #818cf8, #a78bfa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Page layout helpers */
+.page-container { @apply flex flex-col h-full overflow-hidden; }
+.section-label { @apply text-xs font-semibold uppercase tracking-wider text-indigo-400; }
