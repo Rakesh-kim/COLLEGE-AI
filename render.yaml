@@ -1,0 +1,26 @@
+# Render.com deployment config for the backend service
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: hostel-ai-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: MONGO_URI
+        sync: false          # Set this manually in Render dashboard — never commit secrets
+      - key: JWT_SECRET
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false          # Set to your Vercel frontend URL
+      - key: MAX_FILE_SIZE_MB
+        value: 10
+      - key: ADMIN_SECRET
+        sync: false
