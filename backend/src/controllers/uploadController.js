@@ -9,18 +9,21 @@ const logger = require('../utils/logger');
 const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'];
 const MAX_SIZE_MB = parseInt(process.env.MAX_FILE_SIZE_MB || '10');
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    const uploadDir = path.join(__dirname, '../../uploads', req.user._id.toString());
-    fs.mkdirSync(uploadDir, { recursive: true });
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    // Sanitize filename – strip path traversal characters
-    const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
-    cb(null, `${Date.now()}-${safeName}`);
-  },
-});
+// Use memoryStorage in production (Render has ephemeral disk — files lost on restart)
+// Use diskStorage in development for easy inspection
+const storage = process.env.NODE_ENV === 'production'
+  ? multer.memoryStorage()
+  : multer.diskStorage({
+      destination: (req, file, cb) => {
+        const uploadDir = path.join(__dirname, '../../uploads', req.user._id.toString());
+        fs.mkdirSync(uploadDir, { recursive: true });
+        cb(null, uploadDir);
+      },
+      filename: (req, file, cb) => {
+        const safeName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+        cb(null, `${Date.now()}-${safeName}`);
+      },
+    });
 
 const fileFilter = (req, file, cb) => {
   if (ALLOWED_TYPES.includes(file.mimetype)) {
@@ -60,12 +63,16 @@ const uploadDocument = async (req, res) => {
       ? 'File looks valid. Pending admin verification.'
       : 'File appears empty or corrupt.';
 
+    // memoryStorage (production) doesn't set filename/path — generate safe filename manually
+    const safeName = req.file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
+    const generatedFilename = req.file.filename || `${Date.now()}-${safeName}`;
+
     const docRecord = {
-      filename: req.file.filename,
+      filename: generatedFilename,
       originalName: req.file.originalname,
       mimetype: req.file.mimetype,
       size: req.file.size,
-      path: req.file.path,
+      path: req.file.path || '', // empty string in production (memoryStorage)
       validated: isValid,
       validationNote,
     };
@@ -87,7 +94,7 @@ const uploadDocument = async (req, res) => {
       type: isValid ? 'success' : 'warning',
     });
 
-    logger.info(`Document uploaded – User: ${req.user._id} – File: ${req.file.filename}`);
+    logger.info(`Document uploaded – User: ${req.user._id} – File: ${generatedFilename}`);
 
     res.status(200).json({
       success: true,
