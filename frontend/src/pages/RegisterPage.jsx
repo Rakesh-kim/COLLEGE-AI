@@ -27,7 +27,11 @@ export default function RegisterPage() {
     if (!validate()) return;
     setLoading(true);
     try {
-      const res = await authAPI.register({ name: form.name.trim(), email: form.email, password: form.password });
+      const res = await authAPI.register({
+        name: form.name.trim(),
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
       login(res.data.token, res.data.user);
       toast.success('Account created! Let\'s get you registered 🎉');
       navigate('/chat');

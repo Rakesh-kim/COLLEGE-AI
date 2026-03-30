@@ -32,7 +32,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const status = error.response?.status;
+    const requestUrl = error.config?.url || '';
+    const isAuthRequest = requestUrl.includes('/auth/login') || requestUrl.includes('/auth/register');
+
+    // Keep users on auth pages for invalid credentials; redirect only for expired sessions.
+    if (status === 401 && !isAuthRequest) {
       localStorage.removeItem('hostel_token');
       localStorage.removeItem('hostel_user');
       window.location.href = '/login';

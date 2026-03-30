@@ -3,7 +3,17 @@ const Student = require('../models/Student');
 const Notification = require('../models/Notification');
 const logger = require('../utils/logger');
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+// Important: do not initialize OpenAI unconditionally at module load.
+// If `OPENAI_API_KEY` is missing (common during local dev / fresh deploy),
+// the backend can crash on startup. We create the client only when needed.
+let openaiClient = null;
+const getOpenAIClient = () => {
+  if (openaiClient) return openaiClient;
+  const apiKey = (process.env.OPENAI_API_KEY || '').trim();
+  if (!apiKey || apiKey.startsWith('sk-...')) return null;
+  openaiClient = new OpenAI({ apiKey });
+  return openaiClient;
+};
 
 /**
  * System prompt for the hostel registration AI assistant.
@@ -71,6 +81,14 @@ const sendMessage = async (req, res) => {
       ...historyMessages,
       { role: 'user', content: message.trim() },
     ];
+
+    const openai = getOpenAIClient();
+    if (!openai) {
+      return res.status(503).json({
+        success: false,
+        message: 'AI is not configured. Please set OPENAI_API_KEY on the backend.',
+      });
+    }
 
     // Call OpenAI API
     const completion = await openai.chat.completions.create({

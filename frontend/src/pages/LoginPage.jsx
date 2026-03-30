@@ -19,7 +19,10 @@ export default function LoginPage() {
     if (!form.email || !form.password) return toast.error('Please fill in all fields.');
     setLoading(true);
     try {
-      const res = await authAPI.login(form);
+      const res = await authAPI.login({
+        email: form.email.trim().toLowerCase(),
+        password: form.password,
+      });
       login(res.data.token, res.data.user);
       toast.success(`Welcome back, ${res.data.user.name}! 👋`);
       navigate(res.data.user.role === 'admin' ? '/admin' : '/chat');
